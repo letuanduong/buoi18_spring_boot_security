@@ -3,21 +3,32 @@ package com.example.demo.model;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.util.List;
 
-@Entity
 @Data
+@Entity
+@Table(name = "users")
 public class User {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
-    private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String username;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Integer id;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false, unique = false)
+    private String email;
+
     @Column(nullable = false)
     private String password;
 
-    @ManyToOne
-    private Role roll;
+    @ManyToMany(cascade = CascadeType.MERGE)
+    @JoinTable(
+            name = "user_role",
+            joinColumns = {@JoinColumn(name = "USER_ID", referencedColumnName = "ID")},
+            inverseJoinColumns = {@JoinColumn(name = "ROLE_ID", referencedColumnName = "ID")})
+    private List< Role > roles;
 
 }
 
