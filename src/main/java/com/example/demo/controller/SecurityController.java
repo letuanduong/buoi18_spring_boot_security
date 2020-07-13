@@ -1,15 +1,29 @@
 package com.example.demo.controller;
 
+import com.example.demo.model.User;
+import com.example.demo.service.IUserService;
+import com.example.demo.service.impl.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
+@Controller
 public class SecurityController {
+
+    @Autowired
+    IUserService iUserService;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
     private String getPrincipal(){
         String userName = null;
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -22,9 +36,27 @@ public class SecurityController {
         return userName;
     }
 
-    @GetMapping("/")
+
+    @GetMapping("/register")
+    public ModelAndView registerPage(){
+        User user = new User();
+        ModelAndView mv = new ModelAndView("register");
+        mv.addObject("user", user);
+        return mv;
+    }
+
+    @PostMapping("/register")
+    public String PostRegisterPage(@ModelAttribute(value = "user") User user){
+        String password = passwordEncoder.encode(user.getPassword());
+        user.setPassword(password);
+        iUserService.save(user);
+        return "UserRegisterSuccess";
+    }
+
+
+    @GetMapping("/home")
     public String home(){
-        return "register";
+        return "welcome";
     }
 
     @PostMapping(value = {"/home"})
